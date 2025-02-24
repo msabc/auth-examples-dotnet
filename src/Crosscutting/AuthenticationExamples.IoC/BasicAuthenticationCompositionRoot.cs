@@ -1,4 +1,7 @@
-﻿using AuthenticationExamples.Application.Auth.BasicAuthentication;
+﻿using AuthenticationExamples.Application.Services.BasicAuthentication;
+using AuthenticationExamples.Application.Services.Example;
+using AuthenticationExamples.Application.Services.Password;
+using AuthenticationExamples.Application.Services.Users;
 using AuthenticationExamples.Configuration;
 using AuthenticationExamples.Domain.Interfaces.Repositories;
 using AuthenticationExamples.Infrastructure.Context;
@@ -58,7 +61,10 @@ namespace AuthenticationExamples.IoC
 
         private static IServiceCollection RegisterApplicationServices(this IServiceCollection services)
         {
-            services.AddScoped<IBasicAuthService, BasicAuthService>();
+            services.AddScoped<IUserService, UserService>();
+            services.AddScoped<IPasswordService, PasswordService>();
+            services.AddScoped<IBasicAuthenticationService, BasicAuthenticationService>();
+            services.AddScoped<IExampleService, ExampleService>();
 
             return services;
         }

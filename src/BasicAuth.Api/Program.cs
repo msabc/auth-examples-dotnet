@@ -1,39 +1,35 @@
 using AuthenticationExamples.IoC;
+using BasicAuth.Api.Authentication;
 using BasicAuth.Api.Exceptions;
+using BasicAuth.Api.Filters;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.OpenApi.Models;
-using Swashbuckle.AspNetCore.Filters;
+
+const string BasicAuthenticationSchemeName = "BasicAuthentication";
 
 var builder = WebApplication.CreateBuilder(args);
+
+// Register Basic Authentication
+builder.Services.AddAuthentication(BasicAuthenticationSchemeName)
+    .AddScheme<AuthenticationSchemeOptions, BasicAuthenticationHandler>(BasicAuthenticationSchemeName, null);
+
+builder.Services.AddAuthorization();
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 
 builder.Services.AddSwaggerGen(options =>
 {
-    options.AddSecurityDefinition("Basic Authorization", new OpenApiSecurityScheme()
+    options.AddSecurityDefinition("basic auth", new OpenApiSecurityScheme()
     {
         Description = "Basic authorization header",
-        In = ParameterLocation.Header,
         Name = "Authorization",
-        Type = SecuritySchemeType.Http
+        In = ParameterLocation.Header,
+        Type = SecuritySchemeType.Http,
+        Scheme = "basic"
     });
 
-    options.AddSecurityRequirement(new OpenApiSecurityRequirement
-    {
-        {
-            new OpenApiSecurityScheme
-            {
-                Reference = new OpenApiReference
-                {
-                    Type = ReferenceType.SecurityScheme,
-                    Id = "basic"
-                }
-            },
-            Array.Empty<string>()
-        }
-    });
-
-    options.OperationFilter<SecurityRequirementsOperationFilter>();
+    options.OperationFilter<BasicAuthenticationOperationFilter>();
 });
 
 builder.Services.RegisterApplicationDependencies(builder.Configuration);
@@ -50,12 +46,18 @@ var app = builder.Build();
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
-    app.UseSwaggerUI();
+    app.UseSwaggerUI(options =>
+    {
+        options.SwaggerEndpoint("/swagger/v1/swagger.yaml", "v1");
+        options.RoutePrefix = string.Empty;
+    });
 }
 
 app.UseHttpsRedirection();
 
 app.UseAuthorization();
+
+app.UseAuthentication();
 
 app.MapControllers();
 

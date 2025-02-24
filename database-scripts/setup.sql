@@ -24,6 +24,7 @@ Id int primary key identity not null,
 Username varchar(50) not null,
 Email varchar(100) not null,
 PasswordHash varbinary(500) not null,
+PasswordSalt varbinary(500) not null,
 RoleId int foreign key references [dbo].[Role](Id) not null,
 CreatedDate datetime not null default getdate(),
 LastModifiedDate datetime not null default getdate()

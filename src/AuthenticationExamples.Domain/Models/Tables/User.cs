@@ -10,6 +10,8 @@
 
         public required byte[] PasswordHash { get; set; }
 
+        public required byte[] PasswordSalt { get; set; }
+
         public int RoleId { get; set; }
 
         public DateTime CreatedDate { get; set; }
